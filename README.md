@@ -14,11 +14,10 @@ yarn start
 
 ## Commands
 
-Commands are found in `src/commands` and it's subdirectories.
+- Entrypoint for each command is `src/commands/<commandName>/index.ts`.
+- Every command should have `load()` function defined and exported.
 
-Every command should have `load()` function defined and exported.
-
-Here is example command:
+Example command:
 
 ```ts
 import { bot } from '../../bot';
