@@ -1,4 +1,5 @@
 import { bot } from './bot';
+import { logger } from './logger';
 
 export function setupUpdateHandlers() {
   bot.on('message', async ctx => {
@@ -11,7 +12,7 @@ export function setupUpdateHandlers() {
     if (from) {
       const name = [from.first_name, from.last_name].filter(x => x).join(' ');
       const debugText = `Message from ${name}`;
-      console.log(debugText);
+      logger.log(debugText);
     }
   });
 }

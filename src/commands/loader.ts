@@ -6,9 +6,7 @@ interface ICommand {
   load?(): void;
 }
 
-export const commands: {
-  [name: string]: ICommand;
-} = {};
+export const commands: StringMap<ICommand> = {};
 
 async function loadCommand(name: string) {
   try {
@@ -22,8 +20,7 @@ async function loadCommand(name: string) {
       console.warn(`Command "${name}" does not have load function`);
     }
   } catch (e) {
-    console.warn(`Could not load command "${name}"`);
-    console.error(e.stack);
+    console.warn(`Could not load command "${name}"\n`, e.stack);
   }
 
   return false;

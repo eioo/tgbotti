@@ -4,13 +4,12 @@ import { createPool } from 'slonik';
 
 import { config } from '../config';
 
-console.log(config.postgresConnectionString);
-const slonik = createPool(config.postgresConnectionString);
+const pool = createPool(config.postgresConnectionString);
 
 const migrator = setupSlonikMigrator({
   migrationsPath: path.resolve(__dirname + '../../../migrations'),
-  slonik,
+  slonik: pool,
   mainModule: module,
 });
 
-export { slonik, migrator };
+export { pool, migrator };
