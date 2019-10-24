@@ -30,13 +30,13 @@ export async function updateChat(chatId: number, changes: Partial<IChat>) {
   await addNewChat(chatId);
 
   return slonik.transaction(async transaction => {
-    for (const [column, value] of Object.entries(changes as IChat)) {
+    for (const [column, value] of Object.entries(changes)) {
       // Slonik's interceptors transformQuery is limited,
       // have to convert to snake case here.
       const identifier = sql.identifier([toSnakeCase(column)]);
 
       await transaction.query(sql`
-        UPDATE chats SET ${identifier} = ${value} WHERE id = ${chatId};
+        UPDATE chats SET ${identifier} = ${value!} WHERE id = ${chatId};
       `);
     }
   });
