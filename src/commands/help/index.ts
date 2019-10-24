@@ -5,16 +5,12 @@ function load() {
   bot.help(ctx => {
     const responseLines = ['*Bot Help*'];
 
-    for (const [name, command] of Object.entries(commands)) {
-      const description = command.description || '_No description_';
-      responseLines.push(`\`/${name}\` - ${description}`);
+    for (const [name, { description }] of Object.entries(commands)) {
+      responseLines.push(`\`/${name}\` - ${description || '_No description_'}`);
     }
 
     const responseText = responseLines.join('\n');
-
-    ctx.reply(responseText, {
-      parse_mode: 'Markdown',
-    });
+    ctx.replyWithMarkdown(responseText);
   });
 }
 

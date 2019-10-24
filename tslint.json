@@ -5,6 +5,7 @@
     "member-access": [true, "no-public"],
     "no-console": false,
     "no-implicit-dependencies": [true, "dev"],
+    "no-submodule-imports": [true, "telegraf/typings/telegram-types"],
     "object-literal-sort-keys": false
   }
 }
