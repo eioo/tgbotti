@@ -1,0 +1,10 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "rules": {
+    "member-access": [true, "no-public"],
+    "no-console": false,
+    "no-implicit-dependencies": [true, "dev"],
+    "object-literal-sort-keys": false
+  }
+}

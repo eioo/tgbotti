@@ -1,0 +1,32 @@
+{
+  "name": "tgbotti",
+  "version": "1.0.0",
+  "main": "src/app.ts",
+  "license": "MIT",
+  "scripts": {
+    "env": "sync-dotenv",
+    "dev": "tsnd --transpileOnly --respawn src/bot.ts",
+    "migrate": "tsnd src/storage/migrate.ts",
+    "start": "tsnd src/bot.ts"
+  },
+  "devDependencies": {
+    "@slonik/migrator": "^0.1.13",
+    "@types/slonik": "^19.0.1",
+    "husky": "^3.0.9",
+    "sync-dotenv": "^2.2.1",
+    "telegram-typings": "^3.6.0",
+    "ts-node-dev": "^1.0.0-pre.40",
+    "tslint-config-prettier": "^1.17.0",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "slonik": "^19.2.0",
+    "telegraf": "^3.33.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run env"
+    }
+  }
+}
