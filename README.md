@@ -1,6 +1,6 @@
 # Tgbotti
 
-## Installation
+## Installation & Usage
 
 Copy `.env.example` to `.env` and setup your environment variables.
 
