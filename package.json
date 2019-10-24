@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "env": "sync-dotenv",
+    "build": "tsc -p .",
     "dev": "tsnd --transpileOnly --respawn src/bot.ts",
     "migrate": "tsnd src/storage/migrate.ts",
     "start": "tsnd src/bot.ts"
