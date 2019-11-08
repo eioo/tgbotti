@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "es5",
     "lib": ["es2017"],
-    "sourceMap": true,
+    "sourceMap": false,
     "moduleResolution": "node",
     "strict": true,
     "experimentalDecorators": true,
