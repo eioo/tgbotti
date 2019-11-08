@@ -3,13 +3,13 @@ import Telegraf from 'telegraf';
 import { loadCommands } from './commands/loader';
 import { config } from './config';
 import { logger } from './logger';
-import * as database from './storage/database';
+import { connectToDatabase } from './storage';
 import { setupUpdateHandlers } from './updates';
 
 export const bot = new Telegraf(config.botToken);
 
 async function launchBot() {
-  await database.testConnection();
+  await connectToDatabase();
   logger.log('Database connected');
 
   const { loadCount } = await loadCommands();

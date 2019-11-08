@@ -8,6 +8,12 @@ interface ICommand {
 
 export const commands: StringMap<ICommand> = {};
 
+function getDirectories(sourcePath: string) {
+  return readdirSync(sourcePath).filter(f =>
+    statSync(path.join(sourcePath, f)).isDirectory()
+  );
+}
+
 async function loadCommand(name: string) {
   try {
     const command: ICommand = await import(`./${name}`);
@@ -37,10 +43,4 @@ export async function loadCommands() {
   }
 
   return { loadCount };
-}
-
-function getDirectories(sourcePath: string) {
-  return readdirSync(sourcePath).filter(f =>
-    statSync(path.join(sourcePath, f)).isDirectory()
-  );
 }

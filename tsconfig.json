@@ -5,10 +5,9 @@
     "lib": ["es2017"],
     "sourceMap": true,
     "moduleResolution": "node",
-    "strictNullChecks": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "outDir": "build"
   },
   "exclude": ["node_modules"]

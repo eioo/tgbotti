@@ -1,3 +1,3 @@
-interface StringMap<T> {
+type StringMap<T> = {
   [key: string]: T;
-}
+};

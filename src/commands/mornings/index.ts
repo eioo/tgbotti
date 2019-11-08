@@ -1,7 +1,7 @@
 import { ContextMessageUpdate } from 'telegraf';
 
 import { bot } from '../../bot';
-import { getChat, updateChat } from '../../storage/database';
+import { Chat } from '../../storage/entity/Chat';
 
 function load() {
   const changeState = async (ctx: ContextMessageUpdate, state: boolean) => {
@@ -9,12 +9,13 @@ function load() {
       return;
     }
 
-    await updateChat(ctx.chat.id, {
-      test: state,
-    });
+    const chat = new Chat(ctx.chat.id);
+    const { weather } = chat.settings;
+    weather.notifications = state;
+    await chat.save();
 
-    const chat = await getChat(ctx.chat.id);
-    await ctx.reply(chat.test.toString());
+    const response = `*Notifications* ${weather.notifications ? '✅' : '❌'}`;
+    await ctx.replyWithMarkdown(response);
   };
 
   bot.command('enable', ctx => changeState(ctx, true));

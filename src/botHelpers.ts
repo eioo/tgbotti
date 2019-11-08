@@ -19,6 +19,7 @@ export function editMessageText(
 
 export function editMessageTextMarkdown(msg: tt.Message, text: string) {
   editMessageText(msg, text, {
+    // eslint-disable-next-line @typescript-eslint/camelcase
     parse_mode: 'Markdown',
   });
 }

@@ -4,6 +4,9 @@
   "main": "src/app.ts",
   "license": "MIT",
   "scripts": {
+    "lint:scripts": "eslint \"**/*.{ts,tsx}\" --ignore-pattern .gitignore --color --quiet",
+    "lint:types": "tsc",
+    "lint": "npm run lint:types && npm run lint:scripts",
     "env": "sync-dotenv",
     "build": "tsc -p .",
     "dev": "tsnd --transpileOnly --respawn src/bot.ts",
@@ -11,19 +14,26 @@
     "start": "tsnd src/bot.ts"
   },
   "devDependencies": {
-    "@slonik/migrator": "^0.1.13",
-    "@types/slonik": "^19.0.1",
+    "@typescript-eslint/eslint-plugin": "^2.6.1",
+    "@typescript-eslint/parser": "^2.6.1",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-sonarjs": "^0.4.0",
     "husky": "^3.0.9",
+    "prettier": "^1.18.2",
+    "reflect-metadata": "^0.1.13",
     "sync-dotenv": "^2.2.1",
     "telegram-typings": "^3.6.0",
     "ts-node-dev": "^1.0.0-pre.40",
-    "tslint-config-prettier": "^1.17.0",
     "typescript": "^3.2.2"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
-    "slonik": "^19.2.0",
-    "telegraf": "^3.33.0"
+    "pg": "^7.12.1",
+    "telegraf": "^3.33.0",
+    "typeorm": "^0.2.20"
   },
   "husky": {
     "hooks": {
