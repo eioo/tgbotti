@@ -12,7 +12,7 @@ function loadEnvVariable(name: string) {
   return value;
 }
 
-export const config = {
+export const env = {
   botToken: loadEnvVariable('BOT_TOKEN'),
   postgres: {
     host: loadEnvVariable('POSTGRES_HOST') || 'localhost',

@@ -3,22 +3,19 @@ import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
 @Entity()
 export class Chat extends BaseEntity {
   @PrimaryColumn()
-  id: number;
+  id: string;
 
-  @Column({
-    type: 'jsonb',
-  })
+  @Column('jsonb')
   settings: {
-    weather: {
+    mornings: {
       notifications: boolean;
     };
   };
 
-  constructor(id: number) {
+  constructor() {
     super();
-    this.id = id;
     this.settings = {
-      weather: {
+      mornings: {
         notifications: false,
       },
     };

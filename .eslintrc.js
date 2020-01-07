@@ -28,6 +28,7 @@ module.exports = {
     '@typescript-eslint/restrict-plus-operands': 'error',
     'import/no-default-export': 'error',
     'import/no-named-export': 0,
+    'prettier/prettier': 0,
     'no-invalid-this': 'error',
   },
 };
