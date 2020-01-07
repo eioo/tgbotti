@@ -1,8 +1,9 @@
 import { bot } from '../../bot';
+import { replyWithMarkdown } from '../../telegramHelpers';
 import { commands } from '../loader';
 
 function load() {
-  bot.help(ctx => {
+  bot.onText(/^\/help$/i, msg => {
     const responseLines = ['*Bot Help*'];
 
     for (const [name, { description }] of Object.entries(commands)) {
@@ -10,7 +11,7 @@ function load() {
     }
 
     const responseText = responseLines.join('\n');
-    ctx.replyWithMarkdown(responseText);
+    replyWithMarkdown(msg, responseText);
   });
 }
 

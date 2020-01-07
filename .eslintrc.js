@@ -18,11 +18,13 @@ module.exports = {
     project: './tsconfig.json',
   },
   rules: {
+    '@typescript-eslint/camelcase': 0,
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     '@typescript-eslint/consistent-type-definitions': 0,
     '@typescript-eslint/explicit-function-return-type': 0,
     '@typescript-eslint/interface-name-prefix': 0,
     '@typescript-eslint/no-floating-promises': 0,
+    '@typescript-eslint/no-misused-promises': 0,
     '@typescript-eslint/restrict-plus-operands': 'error',
     'import/no-default-export': 'error',
     'import/no-named-export': 0,

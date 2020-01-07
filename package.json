@@ -9,11 +9,11 @@
     "lint": "npm run lint:types && npm run lint:scripts",
     "env": "sync-dotenv",
     "build": "tsc -p .",
-    "dev": "tsnd --transpileOnly --respawn src/bot.ts",
-    "migrate": "tsnd src/storage/migrate.ts",
-    "start": "tsnd src/bot.ts"
+    "dev": "tsnd --transpileOnly --respawn src/index.ts",
+    "start": "tsnd src/index.ts"
   },
   "devDependencies": {
+    "@types/node-telegram-bot-api": "^0.40.1",
     "@typescript-eslint/eslint-plugin": "^2.6.1",
     "@typescript-eslint/parser": "^2.6.1",
     "eslint": "^6.6.0",
@@ -31,8 +31,8 @@
   },
   "dependencies": {
     "dotenv": "^8.2.0",
+    "node-telegram-bot-api": "^0.40.0",
     "pg": "^7.12.1",
-    "telegraf": "^3.33.0",
     "typeorm": "^0.2.20"
   },
   "husky": {

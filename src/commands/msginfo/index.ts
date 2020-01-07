@@ -1,26 +1,27 @@
-import * as tt from 'telegram-typings';
+import TelegramBot = require('node-telegram-bot-api');
 
 import { bot } from '../../bot';
+import { replyWithMarkdown } from '../../telegramHelpers';
 
-const description = "Sends info about sent message";
-const state = new Map<number, tt.Message>();
+const description = 'Sends info about sent message';
+const state = new Map<number, TelegramBot.Message>();
 
 function load() {
-  bot.command('msginfo', async ctx => {
-    const { chat, from } = ctx;
+  bot.onText(/^\/msginfo$/i, async msg => {
+    const { chat, from } = msg;
 
     if (!chat || !from) {
       return;
     }
 
-    const msg = await ctx.replyWithMarkdown('_Waiting for message..._');
-    state.set(chat.id, msg as tt.Message);
+    const waitMsg = await replyWithMarkdown(msg, '_Waiting for message..._');
+    state.set(chat.id, waitMsg);
   });
 
-  bot.on('message', async ctx => {
-    const { chat, from, message } = ctx;
+  bot.on('message', async msg => {
+    const { chat, from } = msg;
 
-    if (!chat || !from || !message) {
+    if (!chat || !from) {
       return;
     }
 
@@ -31,14 +32,14 @@ function load() {
     }
 
     state.delete(chat.id);
-    await ctx.telegram.deleteMessage(chat.id, waitMessage.message_id);
+    await bot.deleteMessage(chat.id, waitMessage.message_id.toString());
 
-    const data: StringMap<number | string> = {
+    const data: Record<string, number | string> = {
       'Chat ID': chat.id,
       'User ID': from.id,
     };
 
-    const { audio, sticker, photo, video, voice } = message;
+    const { audio, sticker, photo, video, voice } = msg;
 
     if (audio) {
       data['Audio ID'] = audio.file_id;
@@ -64,7 +65,7 @@ function load() {
       .map(([key, value]) => `*${key}*: \`${value}\``)
       .join('\n');
 
-    ctx.replyWithMarkdown(response);
+    replyWithMarkdown(msg, response);
   });
 }
 

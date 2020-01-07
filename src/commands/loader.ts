@@ -6,7 +6,7 @@ interface ICommand {
   load?(): void;
 }
 
-export const commands: StringMap<ICommand> = {};
+export const commands: Record<string, ICommand> = {};
 
 function getDirectories(sourcePath: string) {
   return readdirSync(sourcePath).filter(f =>
