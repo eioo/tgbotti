@@ -8,14 +8,8 @@ const state = new Map<number, TelegramBot.Message>();
 
 function load() {
   bot.onText(/^\/msginfo$/i, async msg => {
-    const { chat, from } = msg;
-
-    if (!chat || !from) {
-      return;
-    }
-
     const waitMsg = await replyWithMarkdown(msg, '_Waiting for message..._');
-    state.set(chat.id, waitMsg);
+    state.set(msg.chat.id, waitMsg);
   });
 
   bot.on('message', async msg => {
@@ -62,7 +56,7 @@ function load() {
     }
 
     const response = Object.entries(data)
-      .map(([key, value]) => `*${key}*: \`${value}\``)
+      .map(([key, value]) => `\`${key}: ${value}\``)
       .join('\n');
 
     replyWithMarkdown(msg, response);

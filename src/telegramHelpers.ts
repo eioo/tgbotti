@@ -3,15 +3,16 @@ import * as TelegramBot from 'node-telegram-bot-api';
 import { bot } from './bot';
 
 export function reply(
-  msg: TelegramBot.Message,
+  msg: TelegramBot.Message | string,
   text: string,
   options?: TelegramBot.SendMessageOptions
 ) {
-  return bot.sendMessage(msg.chat.id, text, options);
+  const chatId = typeof msg === 'string' ? msg : msg.chat.id;
+  return bot.sendMessage(chatId, text, options);
 }
 
 export function replyWithMarkdown(
-  msg: TelegramBot.Message,
+  msg: TelegramBot.Message | string,
   text: string,
   options?: TelegramBot.SendMessageOptions
 ) {
@@ -42,4 +43,14 @@ export function editMessageTextMarkdown(
     parse_mode: 'Markdown',
     ...options,
   });
+}
+
+export function getFullName(msg: TelegramBot.Message) {
+  if (!msg.from) {
+    return '';
+  }
+
+  return (
+    msg.from.first_name + (msg.from.last_name ? ' ' + msg.from.last_name : '')
+  );
 }

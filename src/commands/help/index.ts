@@ -4,7 +4,7 @@ import { commands } from '../loader';
 
 function load() {
   bot.onText(/^\/help$/i, msg => {
-    const responseLines = ['*Bot Help*'];
+    const responseLines = ['*Bot help*'];
 
     for (const [name, { description }] of Object.entries(commands)) {
       responseLines.push(`\`/${name}\` - ${description || '_No description_'}`);

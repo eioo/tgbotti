@@ -81,3 +81,42 @@ export function parseTime(str: string) {
     return;
   }
 }
+
+export function parseReminder(str: string) {
+  const duration = parseDuration(str);
+
+  if (duration) {
+    return {
+      date: new Date(Date.now() + duration),
+      text: str.replace(durationRegex, '').trim(),
+    };
+  }
+
+  const parsedDate = parseDate(str);
+  const parsedTime = parseTime(str);
+
+  if (!parsedDate && !parsedTime) {
+    return;
+  }
+
+  const date = new Date();
+
+  if (parsedDate) {
+    date.setDate(parsedDate.days);
+    date.setMonth(parsedDate.months);
+    date.setFullYear(parsedDate.years);
+    str = str.replace(dateRegex, '');
+  }
+
+  if (parsedTime) {
+    date.setSeconds(parsedTime.seconds);
+    date.setMinutes(parsedTime.minutes);
+    date.setHours(parsedTime.hours);
+    str = str.replace(timeRegex, '');
+  }
+
+  return {
+    date,
+    text: str.trim(),
+  };
+}

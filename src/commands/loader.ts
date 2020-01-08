@@ -3,7 +3,7 @@ import * as path from 'path';
 
 interface ICommand {
   description?: string;
-  load?(): void;
+  load?(): void | Promise<void>;
 }
 
 export const commands: Record<string, ICommand> = {};
@@ -19,7 +19,7 @@ async function loadCommand(name: string) {
     const command: ICommand = await import(`./${name}`);
 
     if (command.load) {
-      command.load();
+      await command.load();
       commands[name] = command;
       return true;
     } else {
@@ -32,7 +32,7 @@ async function loadCommand(name: string) {
   return false;
 }
 
-export async function loadCommands() {
+export async function loadAllCommands() {
   const commandNames = getDirectories(__dirname);
   let loadCount = 0;
 

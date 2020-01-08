@@ -1,43 +1,54 @@
+import * as dateFormat from 'dateformat';
+import * as schedule from 'node-schedule';
+
 import { bot } from '../../bot';
-import { replyWithMarkdown } from '../../telegramHelpers';
-import { parseDate, parseDuration, parseTime } from './parseDuration';
+import { logger } from '../../logger';
+import { Reminder } from '../../storage/entity/Reminder';
+import { getFullName, replyWithMarkdown } from '../../telegramHelpers';
+import { parseReminder } from './parser';
 
 const description = 'Adds a reminder';
 
-function parseDateFromString(str: string) {
-  const duration = parseDuration(str);
+async function notifyReminder(reminder: Reminder) {
+  let text = `*🔔 Reminder for* [${reminder.askerName}](tg://user?id=${reminder.askerId})`;
 
-  if (duration) {
-    return new Date(Date.now() + duration);
+  if (reminder.text) {
+    text += `\n${reminder.text}`;
   }
 
-  const parsedDate = parseDate(str);
-  const parsedTime = parseTime(str);
-
-  if (!parsedDate && !parsedTime) {
-    return;
-  }
-
-  const date = new Date();
-
-  if (parsedDate) {
-    date.setDate(parsedDate.days);
-    date.setMonth(parsedDate.months);
-    date.setFullYear(parsedDate.years);
-  }
-
-  if (parsedTime) {
-    date.setSeconds(parsedTime.seconds);
-    date.setMinutes(parsedTime.minutes);
-    date.setHours(parsedTime.hours);
-  }
-
-  return date;
+  await replyWithMarkdown(reminder.chatId, text);
+  reminder.notified = true;
+  await reminder.save();
 }
 
-function load() {
-  bot.onText(/^\/remind/i, msg => {
-    if (!msg.text) {
+function scheduleReminder(reminder: Reminder) {
+  schedule.scheduleJob(reminder.date, () => notifyReminder(reminder));
+}
+
+async function loadOldReminders() {
+  const unnotifiedReminders = await Reminder.find({ notified: false });
+  const now = new Date();
+  let scheduleCount = 0;
+
+  for (const reminder of unnotifiedReminders) {
+    if (reminder.date > now) {
+      scheduleReminder(reminder);
+      scheduleCount++;
+    } else {
+      notifyReminder(reminder);
+    }
+  }
+
+  if (scheduleCount) {
+    logger.log(`Scheduled ${scheduleCount} reminders`);
+  }
+}
+
+async function load() {
+  await loadOldReminders();
+
+  bot.onText(/^\/remind/i, async msg => {
+    if (!msg.text || !msg.from) {
       return;
     }
 
@@ -45,13 +56,36 @@ function load() {
     const argsText = args.join(' ');
 
     if (args.length >= 1) {
-      const date = parseDateFromString(argsText);
+      const parsed = parseReminder(argsText);
 
-      if (!date) {
-        return replyWithMarkdown(msg, 'Could not parse remind time');
+      if (!parsed) {
+        return replyWithMarkdown(msg, '👎 Could not parse remind time');
       }
 
-      console.log(date.toLocaleString());
+      const now = new Date();
+
+      if (parsed.date <= now) {
+        return replyWithMarkdown(msg, "🤦‍♂️ I can't time travel _(yet)_");
+      }
+
+      const reminder = new Reminder();
+      reminder.text = parsed.text;
+      reminder.date = parsed.date;
+      reminder.askerName = getFullName(msg);
+      reminder.chatId = msg.chat.id.toString();
+      reminder.askerId = msg.from.id.toString();
+      await reminder.save();
+
+      scheduleReminder(reminder);
+
+      const timestamp = dateFormat(parsed.date, 'HH:MM:ss dd.mm.yyyy');
+      const lines = ['*🔔 Reminder set!*', `*When:* ${timestamp}`];
+
+      if (parsed.text) {
+        lines.push(`*Text:* ${parsed.text}`);
+      }
+
+      await replyWithMarkdown(msg, lines.join('\n'));
     }
   });
 }

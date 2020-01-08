@@ -1,12 +1,12 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Remind extends BaseEntity {
+export class Reminder extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: string;
 
   @Column()
-  chatId: number;
+  chatId: string;
 
   @Column()
   date: Date;
@@ -19,4 +19,7 @@ export class Remind extends BaseEntity {
 
   @Column()
   askerId: string;
+
+  @Column({ default: false })
+  notified: boolean;
 }
