@@ -8,7 +8,6 @@ Then run:
 
 ```
 yarn install
-yarn migrate up
 yarn start
 ```
 
@@ -26,8 +25,8 @@ import { bot } from '../../bot';
 const description = 'Ping command';
 
 function load() {
-  bot.hears('ping', ctx => {
-    ctx.reply('pong');
+  bot.onText(/ping/, msg => {
+    bot.sendMessage(msg.chat.id, 'pong');
   });
 }
 
