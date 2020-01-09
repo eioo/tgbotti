@@ -1,5 +1,5 @@
 import { bot } from '../../bot';
-import { replyWithMarkdown } from '../../telegramHelpers';
+import { reply } from '../../telegramHelpers';
 import { commands } from '../loader';
 
 function load() {
@@ -11,7 +11,7 @@ function load() {
     }
 
     const responseText = responseLines.join('\n');
-    replyWithMarkdown(msg, responseText);
+    reply(msg, responseText);
   });
 }
 

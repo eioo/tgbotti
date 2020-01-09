@@ -1,22 +1,27 @@
 import * as TelegramBot from 'node-telegram-bot-api';
 
 import { bot } from './bot';
+import { Chat } from './storage/entity/Chat';
 
-export function reply(
-  msg: TelegramBot.Message | string,
-  text: string,
-  options?: TelegramBot.SendMessageOptions
-) {
-  const chatId = typeof msg === 'string' ? msg : msg.chat.id;
-  return bot.sendMessage(chatId, text, options);
+export function getChatId(target: Chat | TelegramBot.Message | string) {
+  if (typeof target === 'string') {
+    return target;
+  }
+
+  if ('id' in target) {
+    return target.id;
+  } else {
+    return target.chat.id.toString();
+  }
 }
 
-export function replyWithMarkdown(
-  msg: TelegramBot.Message | string,
+export function reply(
+  target: TelegramBot.Message | Chat | string,
   text: string,
   options?: TelegramBot.SendMessageOptions
 ) {
-  return reply(msg, text, {
+  const chatId = getChatId(target);
+  return bot.sendMessage(chatId, text, {
     parse_mode: 'Markdown',
     ...options,
   });
@@ -30,27 +35,11 @@ export function editMessageText(
   return bot.editMessageText(text, {
     chat_id: msg.chat.id,
     message_id: msg.message_id,
-    ...options,
-  });
-}
-
-export function editMessageTextMarkdown(
-  msg: TelegramBot.Message,
-  text: string,
-  options?: TelegramBot.EditMessageTextOptions
-) {
-  return editMessageText(msg, text, {
     parse_mode: 'Markdown',
     ...options,
   });
 }
 
 export function getFullName(msg: TelegramBot.Message) {
-  if (!msg.from) {
-    return '';
-  }
-
-  return (
-    msg.from.first_name + (msg.from.last_name ? ' ' + msg.from.last_name : '')
-  );
+  return [msg.from?.first_name, msg.from?.last_name].filter(x => x).join(' ');
 }

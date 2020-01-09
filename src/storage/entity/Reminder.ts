@@ -1,5 +1,7 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+import { base64Transformer } from '../base64Transformer';
+
 @Entity()
 export class Reminder extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -11,7 +13,9 @@ export class Reminder extends BaseEntity {
   @Column()
   date: Date;
 
-  @Column()
+  @Column({
+    transformer: base64Transformer,
+  })
   text: string;
 
   @Column()

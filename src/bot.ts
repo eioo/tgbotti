@@ -4,18 +4,16 @@ import { loadAllCommands } from './commands/loader';
 import { env } from './env';
 import { logger } from './logger';
 import { connectToDatabase } from './storage';
+import { getFullName } from './telegramHelpers';
 
 export const bot = new TelegramBot(env.botToken);
 
 function messageHandler() {
   bot.on('message', msg => {
-    const { date, from } = msg;
-    const timeSince = +new Date() / 1000 - date; // Seconds
+    const timeSince = Date.now() / 1000 - msg.date; // Seconds
 
-    if (from && timeSince < 60) {
-      const name = [from.first_name, from.last_name].filter(x => x).join(' ');
-      const debugText = `Message from ${name}`;
-      logger.log(debugText);
+    if (timeSince < 60) {
+      logger.log(`Message from ${getFullName(msg)}`);
     }
   });
 }
@@ -28,6 +26,6 @@ export async function launch() {
   logger.log(`Loaded ${loadCount} commands`);
 
   messageHandler();
-  await bot.startPolling();
+  bot.startPolling();
   logger.log('Bot launched');
 }

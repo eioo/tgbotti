@@ -1,22 +1,65 @@
+import * as dateFormat from 'dateformat';
 import TelegramBot = require('node-telegram-bot-api');
 
 import { bot } from '../../bot';
+import { addNotification, removeNotificaton } from '../../notifications';
 import { getChat } from '../../storage';
-import { replyWithMarkdown } from '../../telegramHelpers';
+import { Chat } from '../../storage/entity/Chat';
+import { getChatId, reply } from '../../telegramHelpers';
+import { getTodaysHoliday } from './holidayEvents';
 
-function load() {
-  const changeState = async (msg: TelegramBot.Message, state: boolean) => {
+async function sendMornings(target: Chat | TelegramBot.Message) {
+  const chatId = getChatId(target);
+  let text = `*Mornings!*\nTänään on ${dateFormat('dd.mm.yyyy')}`;
+  const holiday = await getTodaysHoliday();
+
+  if (holiday) {
+    text += `\n[${holiday.name}](${holiday.url})`;
+  }
+
+  return reply(chatId, text);
+}
+
+async function load() {
+  bot.onText(/^\/mornings/i, async msg => {
+    if (!msg.text) {
+      return;
+    }
+
+    const args = msg.text.split(' ').splice(1);
+
+    if (!args.length) {
+      return sendMornings(msg);
+    }
+
     const chat = await getChat(msg);
-    const { mornings } = chat.settings;
-    mornings.notifications = state;
-    await chat.save();
+    const { notificationRule } = chat.settings.mornings;
+    const firstArg = args[0].toLowerCase();
 
-    const response = `*Notifications* ${mornings.notifications ? '✅' : '❌'}`;
-    await replyWithMarkdown(msg, response);
-  };
+    if (firstArg === 'enable') {
+      addNotification(chat, 'mornings', notificationRule, () => {
+        sendMornings(chat);
+      });
+      return reply(chat, `✅ *Notifications enabled*`);
+    }
 
-  bot.onText(/^\/enable$/i, msg => changeState(msg, true));
-  bot.onText(/^\/disable$/i, msg => changeState(msg, false));
+    if (firstArg === 'disable') {
+      removeNotificaton(msg, 'mornings');
+      return reply(chat, `❌ *Notifications disabled*`);
+    }
+  });
+
+  const chats = await Chat.find();
+
+  for (const chat of chats) {
+    const { notificationRule, notifications } = chat.settings.mornings;
+
+    if (notifications) {
+      addNotification(chat, 'mornings', notificationRule, () => {
+        sendMornings(chat);
+      });
+    }
+  }
 }
 
 export { load };

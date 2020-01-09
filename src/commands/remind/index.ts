@@ -4,7 +4,7 @@ import * as schedule from 'node-schedule';
 import { bot } from '../../bot';
 import { logger } from '../../logger';
 import { Reminder } from '../../storage/entity/Reminder';
-import { getFullName, replyWithMarkdown } from '../../telegramHelpers';
+import { getFullName, reply } from '../../telegramHelpers';
 import { parseReminder } from './parser';
 
 const description = 'Adds a reminder';
@@ -16,7 +16,7 @@ async function notifyReminder(reminder: Reminder) {
     text += `\n${reminder.text}`;
   }
 
-  await replyWithMarkdown(reminder.chatId, text);
+  await reply(reminder.chatId, text);
   reminder.notified = true;
   await reminder.save();
 }
@@ -59,13 +59,13 @@ async function load() {
       const parsed = parseReminder(argsText);
 
       if (!parsed) {
-        return replyWithMarkdown(msg, '👎 Could not parse remind time');
+        return reply(msg, '👎 Could not parse remind time');
       }
 
       const now = new Date();
 
       if (parsed.date <= now) {
-        return replyWithMarkdown(msg, "🤦‍♂️ I can't time travel _(yet)_");
+        return reply(msg, "🤦‍♂️ I can't time travel _(yet)_");
       }
 
       const reminder = new Reminder();
@@ -85,7 +85,7 @@ async function load() {
         lines.push(`*Text:* ${parsed.text}`);
       }
 
-      await replyWithMarkdown(msg, lines.join('\n'));
+      await reply(msg, lines.join('\n'));
     }
   });
 }

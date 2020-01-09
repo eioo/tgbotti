@@ -1,14 +1,14 @@
 import TelegramBot = require('node-telegram-bot-api');
 
 import { bot } from '../../bot';
-import { replyWithMarkdown } from '../../telegramHelpers';
+import { reply } from '../../telegramHelpers';
 
 const description = 'Sends info about sent message';
 const state = new Map<number, TelegramBot.Message>();
 
 function load() {
   bot.onText(/^\/msginfo$/i, async msg => {
-    const waitMsg = await replyWithMarkdown(msg, '_Waiting for message..._');
+    const waitMsg = await reply(msg, '_Waiting for message..._');
     state.set(msg.chat.id, waitMsg);
   });
 
@@ -59,7 +59,7 @@ function load() {
       .map(([key, value]) => `\`${key}: ${value}\``)
       .join('\n');
 
-    replyWithMarkdown(msg, response);
+    reply(msg, response);
   });
 }
 
