@@ -77,7 +77,7 @@ async function load() {
 
       scheduleReminder(reminder);
 
-      const timestamp = dateFormat(parsed.date, 'HH:MM:ss dd.mm.yyyy');
+      const timestamp = dateFormat(parsed.date, 'dd.mm.yyyy HH:MM:ss');
       const lines = ['*🔔 Reminder set!*', `*When:* ${timestamp}`];
 
       if (parsed.text) {
