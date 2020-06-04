@@ -2,6 +2,7 @@ import { readdirSync, statSync } from 'fs';
 import * as path from 'path';
 
 interface ICommand {
+  hidden?: boolean;
   description?: string;
   load?(): void | Promise<void>;
 }

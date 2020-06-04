@@ -9,7 +9,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "outDir": "build",
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "baseUrl": "./src"
   },
   "include": ["src"]
 }

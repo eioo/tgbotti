@@ -1,6 +1,5 @@
 import * as dateFormat from 'dateformat';
 import * as schedule from 'node-schedule';
-
 import { bot } from '../../bot';
 import { logger } from '../../logger';
 import { Reminder } from '../../storage/entity/Reminder';

@@ -1,24 +1,16 @@
 import * as dotenv from 'dotenv';
+import * as envalid from 'envalid';
 
 dotenv.config();
 
-function loadEnvVariable(name: string) {
-  const value = process.env[name];
+const { str, host, port } = envalid;
 
-  if (!value) {
-    throw new Error(`Could not load environment variable: ${name}`);
-  }
-
-  return value;
-}
-
-export const env = {
-  botToken: loadEnvVariable('BOT_TOKEN'),
-  postgres: {
-    host: loadEnvVariable('POSTGRES_HOST') || 'localhost',
-    port: Number(loadEnvVariable('POSTGRES_PORT')) || 5432,
-    username: loadEnvVariable('POSTGRES_USERNAME'),
-    password: loadEnvVariable('POSTGRES_PASSWORD'),
-    database: loadEnvVariable('POSTGRES_DATABASE'),
-  },
-};
+export const env = envalid.cleanEnv(process.env, {
+  BOT_TOKEN: str(),
+  POSTGRES_HOST: host({ default: 'localhost' }),
+  POSTGRES_PORT: port({ default: 5432 }),
+  POSTGRES_USERNAME: str(),
+  POSTGRES_PASSWORD: str(),
+  POSTGRES_DATABASE: str(),
+  GIPHY_API_KEY: str({ default: undefined }),
+});

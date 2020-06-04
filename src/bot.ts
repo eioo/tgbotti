@@ -1,12 +1,11 @@
 import * as TelegramBot from 'node-telegram-bot-api';
-
 import { loadAllCommands } from './commands/loader';
 import { env } from './env';
 import { logger } from './logger';
 import { connectToDatabase } from './storage';
 import { getFullName } from './telegramHelpers';
 
-export const bot = new TelegramBot(env.botToken);
+export const bot = new TelegramBot(env.BOT_TOKEN);
 
 function messageHandler() {
   bot.on('message', msg => {
