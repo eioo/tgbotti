@@ -24,6 +24,15 @@ function scheduleReminder(reminder: Reminder) {
   schedule.scheduleJob(reminder.date, () => notifyReminder(reminder));
 }
 
+const isToday = (date: Date) => {
+  const today = new Date();
+  return (
+    date.getDate() == today.getDate() &&
+    date.getMonth() == today.getMonth() &&
+    date.getFullYear() == today.getFullYear()
+  );
+};
+
 async function loadOldReminders() {
   const unnotifiedReminders = await Reminder.find({ notified: false });
   const now = new Date();
@@ -77,8 +86,9 @@ async function load() {
 
       scheduleReminder(reminder);
 
-      const timestamp = dateFormat(parsed.date, 'dd.mm.yyyy HH:MM:ss');
-      const lines = ['*🔔 Reminder set!*', `*When:* ${timestamp}`];
+      const dateMask = isToday(parsed.date) ? '' : 'dd.mm.yyyy ';
+      const timestamp = dateFormat(parsed.date, dateMask + 'HH:MM:ss');
+      const lines = ['*🔔 Reminder set!*', `*When:* \`${timestamp}\``];
 
       if (parsed.text) {
         lines.push(`*Text:* ${parsed.text}`);
