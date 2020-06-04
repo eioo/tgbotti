@@ -7,7 +7,7 @@ const description = 'Show help';
 function load() {
   bot.onText(/^\/help$/i, msg => {
     const responseText =
-      '*Bot help*' +
+      '*Bot help*\n' +
       Object.entries(commands)
         .filter(([, { hidden }]) => !hidden)
         .map(
