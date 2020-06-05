@@ -12,6 +12,12 @@ export class Chat extends BaseEntity {
       notifications: boolean;
       notificationRule: RecurrenceRule;
     };
+    traffic: {
+      cameras: Array<{
+        url: string;
+        name: string;
+      }>;
+    };
   };
 
   constructor() {
@@ -19,11 +25,16 @@ export class Chat extends BaseEntity {
 
     const rule = new RecurrenceRule();
     rule.hour = 7;
+    rule.minute = 0;
+    rule.second = 0;
 
     this.settings = {
       mornings: {
         notifications: false,
         notificationRule: rule,
+      },
+      traffic: {
+        cameras: [],
       },
     };
   }

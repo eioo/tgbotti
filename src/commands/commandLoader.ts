@@ -1,13 +1,13 @@
 import { readdirSync, statSync } from 'fs';
 import * as path from 'path';
 
-interface ICommand {
+export interface Command {
   hidden?: boolean;
   description?: string;
   load?(): void | Promise<void>;
 }
 
-export const commands: Record<string, ICommand> = {};
+export const commands: Record<string, Command> = {};
 
 function getDirectories(sourcePath: string) {
   return readdirSync(sourcePath).filter(f =>
@@ -17,7 +17,7 @@ function getDirectories(sourcePath: string) {
 
 async function loadCommand(name: string) {
   try {
-    const command: ICommand = await import(`./${name}`);
+    const command: Command = await import(`./${name}`);
 
     if (command.load) {
       await command.load();

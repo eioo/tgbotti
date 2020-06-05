@@ -1,5 +1,5 @@
 import * as TelegramBot from 'node-telegram-bot-api';
-import { loadAllCommands } from './commands/loader';
+import { loadAllCommands } from './commands/commandLoader';
 import { env } from './env';
 import { logger } from './logger';
 import { connectToDatabase } from './storage';

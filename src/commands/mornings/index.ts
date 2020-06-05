@@ -1,12 +1,14 @@
 import * as dateFormat from 'dateformat';
-import TelegramBot = require('node-telegram-bot-api');
-
 import { bot } from '../../bot';
-import { addNotification, removeNotificaton } from '../../notifications';
+import {
+  addNotification,
+  removeNotificaton as removeNotification,
+} from '../../notifications';
 import { getChat } from '../../storage';
 import { Chat } from '../../storage/entity/Chat';
 import { getChatId, reply } from '../../telegramHelpers';
 import { getTodaysHoliday } from './holidayEvents';
+import TelegramBot = require('node-telegram-bot-api');
 
 async function sendMornings(target: Chat | TelegramBot.Message) {
   const chatId = getChatId(target);
@@ -44,7 +46,7 @@ async function load() {
     }
 
     if (firstArg === 'disable') {
-      removeNotificaton(msg, 'mornings');
+      removeNotification(msg, 'mornings');
       return reply(chat, `❌ *Notifications disabled*`);
     }
   });

@@ -26,6 +26,7 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': 0,
     '@typescript-eslint/no-misused-promises': 0,
     '@typescript-eslint/restrict-plus-operands': 'error',
+    '@typescript-eslint/no-non-null-assertion': 0,
     'import/no-default-export': 'error',
     'import/no-named-export': 0,
     'prettier/prettier': 0,

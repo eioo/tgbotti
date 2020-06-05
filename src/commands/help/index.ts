@@ -1,6 +1,6 @@
 import { bot } from '../../bot';
 import { reply } from '../../telegramHelpers';
-import { commands } from '../loader';
+import { commands } from '../commandLoader';
 
 const description = 'Show help';
 
