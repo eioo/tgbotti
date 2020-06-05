@@ -11,6 +11,7 @@ export class Chat extends BaseEntity {
     mornings: {
       notifications: boolean;
       notificationRule: RecurrenceRule;
+      showTraffic: boolean;
     };
     traffic: {
       cameras: Array<{
@@ -32,6 +33,7 @@ export class Chat extends BaseEntity {
       mornings: {
         notifications: false,
         notificationRule: rule,
+        showTraffic: true,
       },
       traffic: {
         cameras: [],

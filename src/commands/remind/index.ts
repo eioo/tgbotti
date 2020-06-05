@@ -1,4 +1,4 @@
-import * as dateFormat from 'dateformat';
+import { format, isToday } from 'date-fns';
 import * as schedule from 'node-schedule';
 import { bot } from '../../bot';
 import { logger } from '../../logger';
@@ -23,15 +23,6 @@ async function notifyReminder(reminder: Reminder) {
 function scheduleReminder(reminder: Reminder) {
   schedule.scheduleJob(reminder.date, () => notifyReminder(reminder));
 }
-
-const isToday = (date: Date) => {
-  const today = new Date();
-  return (
-    date.getDate() == today.getDate() &&
-    date.getMonth() == today.getMonth() &&
-    date.getFullYear() == today.getFullYear()
-  );
-};
 
 async function loadOldReminders() {
   const unnotifiedReminders = await Reminder.find({ notified: false });
@@ -86,8 +77,8 @@ async function load() {
 
       scheduleReminder(reminder);
 
-      const dateMask = isToday(parsed.date) ? '' : 'dd.mm.yyyy ';
-      const timestamp = dateFormat(parsed.date, dateMask + 'HH:MM:ss');
+      const dateMask = isToday(parsed.date) ? '' : 'dd.MM.yyyy ';
+      const timestamp = format(parsed.date, dateMask + 'HH:mm:ss');
       const lines = ['*🔔 Reminder set!*', `*When:* \`${timestamp}\``];
 
       if (parsed.text) {

@@ -1,37 +1,48 @@
 import { bot } from '../../bot';
 import { getChat } from '../../storage';
 import { editMessageText, reply } from '../../telegramHelpers';
+import { logger } from './../../logger';
+import { Chat } from './../../storage/entity/Chat';
 import { getTrafficCamera, validTrafficCameraUrl } from './service';
+import TelegramBot = require('node-telegram-bot-api');
 
-function load() {
+export async function sendTraffic(
+  target: Chat | TelegramBot.Message,
+  hideNoCamerasMessage = false
+) {
+  const chat = await getChat(target);
+  const { cameras } = chat.settings.traffic;
+
+  if (!hideNoCamerasMessage && !cameras.length) {
+    return reply(
+      chat.id,
+      `👎 No traffic cameras added\n\`/traffic add <kelikamerat.info url>\``
+    );
+  }
+
+  for (const { url } of cameras) {
+    const camera = await getTrafficCamera(url);
+
+    if (!camera.imageUrl) {
+      logger.warn('Could not get camera image url? Camera:', camera);
+      return;
+    }
+
+    await reply(
+      chat.id,
+      `🌦 *Kelikamera* 📷
+Nimi | \`${camera.name}\`
+Lämpötila | \`${camera.airTemperature}°C\`
+Tuulen nopeus | \`${camera.windSpeed} m/s\``
+    );
+    await bot.sendPhoto(chat.id, camera.imageUrl);
+  }
+}
+
+export function load() {
   bot.onText(/^\/traffic$/, async msg => {
     const chat = await getChat(msg);
-    const { cameras } = chat.settings.traffic;
-
-    if (!cameras.length) {
-      return reply(
-        msg,
-        `👎 No traffic cameras added\n\`/traffic add <kelikamerat.info url>\``
-      );
-    }
-
-    for (const { url } of cameras) {
-      const camera = await getTrafficCamera(url);
-
-      if (!camera.imageUrl) {
-        console.log('eioo');
-        return;
-      }
-
-      await reply(
-        msg,
-        `🌦 *Kelikamera* 📷
-  Nimi | \`${camera.name}\`
-  Lämpötila | \`${camera.airTemperature}°C\`
-  Tuulen nopeus | \`${camera.windSpeed} m/s\``
-      );
-      await bot.sendPhoto(msg.chat.id, camera.imageUrl);
-    }
+    sendTraffic(chat);
   });
 
   bot.onText(/^\/traffic add/, async msg => {
@@ -118,5 +129,3 @@ function load() {
     );
   });
 }
-
-export { load };

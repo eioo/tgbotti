@@ -1,7 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import * as dayjs from 'dayjs';
-
+import { parse } from 'date-fns';
 export interface TrafficCamera {
   date?: Date;
   name?: string;
@@ -23,7 +22,7 @@ export async function getTrafficCamera(
   const { data } = await axios.get(cameraUrl);
   const $ = cheerio.load(data);
 
-  const date = dayjs($('.date-time').text(), 'DD.MM.YYYY HH:mm:ss').toDate();
+  const date = parse($('.date-time').text(), 'dd.MM.yyyy HH:mm:ss', new Date());
   const name = $('#page-title')
     .text()
     .trim()

@@ -1,11 +1,12 @@
 import * as TelegramBot from 'node-telegram-bot-api';
-
 import { bot } from './bot';
 import { Chat } from './storage/entity/Chat';
 
-export function getChatId(target: Chat | TelegramBot.Message | string) {
-  if (typeof target === 'string') {
-    return target;
+export function getChatId(
+  target: Chat | TelegramBot.Message | string | number
+) {
+  if (typeof target === 'string' || typeof target === 'number') {
+    return target.toString();
   }
 
   if ('id' in target) {

@@ -27,13 +27,31 @@ export async function connectToDatabase() {
   }
 }
 
+const getChatId = (target: string | number | TelegramBot.Message | Chat) => {
+  if (typeof target === 'string' || typeof target === 'number') {
+    return target.toString();
+  }
+
+  // Chat
+  if ('id' in target) {
+    return target.id.toString();
+  }
+
+  // TelegramBot.Message
+  if ('chat' in target) {
+    return target.chat.id.toString();
+  }
+
+  return '';
+};
+
+/** This can be:
+ * @param target can be chat id in string or number, TelegramBot.Message, or Chat
+ */
 export async function getChat(
-  idOrMessage: string | number | TelegramBot.Message
+  target: string | number | TelegramBot.Message | Chat
 ) {
-  const chatId =
-    typeof idOrMessage === 'object'
-      ? idOrMessage.chat.id.toString()
-      : idOrMessage.toString();
+  const chatId = getChatId(target);
   const oldChat = await storage.getRepository(Chat).findOne({ id: chatId });
 
   if (oldChat) {
