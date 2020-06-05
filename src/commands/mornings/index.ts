@@ -1,4 +1,4 @@
-import * as dateFormat from 'dateformat';
+import { format } from 'date-fns';
 import { bot } from '../../bot';
 import {
   addNotification,
@@ -13,7 +13,7 @@ import TelegramBot = require('node-telegram-bot-api');
 
 async function sendMornings(target: Chat | TelegramBot.Message) {
   const chat = await getChat(target);
-  let text = `*Mornings!*\nTänään on ${dateFormat('dd.mm.yyyy')}`;
+  let text = `*Mornings!*\nTänään on ${format(new Date(), 'dd.MM.yyyy')}`;
   const holiday = await getTodaysHoliday();
 
   if (holiday) {
