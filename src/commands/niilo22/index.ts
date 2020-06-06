@@ -10,7 +10,7 @@ function getRandomSound() {
 }
 
 export function load() {
-  bot.onText(/\w+22/i, msg => {
+  bot.onText(/[a-zA-ZäöåÄÖÅ]+22/i, msg => {
     bot.sendVoice(msg.chat.id, getRandomSound());
   });
 }
