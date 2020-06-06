@@ -3,19 +3,33 @@ import * as schedule from 'node-schedule';
 import { bot } from '../../bot';
 import { logger } from '../../logger';
 import { Reminder } from '../../storage/entity/Reminder';
-import { getFullName, reply } from '../../telegramHelpers';
+import {
+  buttonMenu,
+  deleteMessage,
+  deleteMessageByIds,
+  getFullName,
+  reply,
+} from '../../telegramHelpers';
 import { parseReminder } from './parser';
 
 const description = 'Adds a reminder';
 
 async function notifyReminder(reminder: Reminder) {
+  await reminder.reload();
+
+  if (reminder.notified) {
+    return;
+  }
+
   let text = `*🔔 Reminder for* [${reminder.askerName}](tg://user?id=${reminder.askerId})`;
 
   if (reminder.text) {
     text += `\n${reminder.text}`;
   }
 
+  await deleteMessageByIds(reminder.chatId, reminder.reminderSetMessageId);
   await reply(reminder.chatId, text);
+
   reminder.notified = true;
   await reminder.save();
 }
@@ -73,7 +87,6 @@ async function load() {
       reminder.askerName = getFullName(msg);
       reminder.chatId = msg.chat.id.toString();
       reminder.askerId = msg.from.id.toString();
-      await reminder.save();
 
       scheduleReminder(reminder);
 
@@ -85,7 +98,23 @@ async function load() {
         lines.push(`*Text:* ${parsed.text}`);
       }
 
-      await reply(msg, lines.join('\n'));
+      const menu = await buttonMenu(msg, {
+        title: lines.join('\n'),
+        items: [
+          {
+            text: '❌ Delete reminder',
+            value: 'delete',
+          },
+        ],
+        allowMultiple: true,
+        onSelect: async msg => {
+          deleteMessage(msg);
+          await reminder.remove();
+        },
+      });
+
+      reminder.reminderSetMessageId = menu.message_id;
+      await reminder.save();
     }
   });
 }

@@ -12,7 +12,9 @@ function messageHandler() {
     const timeSince = Date.now() / 1000 - msg.date; // Seconds
 
     if (timeSince < 60) {
-      logger.log(`Message from ${getFullName(msg)}`);
+      logger.log(
+        `Message from ${getFullName(msg)} (ID: ${msg.from?.id || '-'})`
+      );
     }
   });
 }

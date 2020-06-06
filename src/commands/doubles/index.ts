@@ -1,5 +1,5 @@
 import { bot } from '../../bot';
-import { editMessageText, reply } from '../../telegramHelpers';
+import { editText, reply } from '../../telegramHelpers';
 
 const description = 'Tuplas will tell the truth';
 
@@ -14,7 +14,7 @@ function load() {
     const response = `🎲 \`[${paddedNumber}]\` No doubles for u :((`;
 
     setTimeout(() => {
-      editMessageText(rollMsg, response);
+      editText(rollMsg, response);
     }, 3000);
   });
 }

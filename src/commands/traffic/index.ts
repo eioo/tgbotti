@@ -1,6 +1,11 @@
 import { bot } from '../../bot';
 import { getChat } from '../../storage';
-import { editMessageText, reply } from '../../telegramHelpers';
+import {
+  buttonMenu,
+  editText,
+  getFullName,
+  reply,
+} from '../../telegramHelpers';
 import { logger } from './../../logger';
 import { Chat } from './../../storage/entity/Chat';
 import { getTrafficCamera, validTrafficCameraUrl } from './service';
@@ -16,7 +21,7 @@ export async function sendTraffic(
   if (!hideNoCamerasMessage && !cameras.length) {
     return reply(
       chat.id,
-      `👎 No traffic cameras added\n\`/traffic add <kelikamerat.info url>\``
+      `👎 Ei kelikameroita\n\`/traffic add <kelikamerat.info url>\``
     );
   }
 
@@ -39,93 +44,82 @@ Tuulen nopeus | \`${camera.windSpeed} m/s\``
   }
 }
 
-export function load() {
-  bot.onText(/^\/traffic$/, async msg => {
-    const chat = await getChat(msg);
-    sendTraffic(chat);
-  });
+async function addCamera(msg: TelegramBot.Message) {
+  const chat = await getChat(msg);
+  const { cameras } = chat.settings.traffic;
 
-  bot.onText(/^\/traffic add/, async msg => {
-    const chat = await getChat(msg);
-    const { cameras } = chat.settings.traffic;
+  const args = msg.text!.split(' ').splice(1);
 
-    const args = msg.text!.split(' ').splice(1);
-
-    if (args.length !== 2) {
-      // TODO: Show help
-      return;
-    }
-
-    const cameraUrl = args[1];
-
-    if (!validTrafficCameraUrl(cameraUrl)) {
-      return reply(msg, '❌ Ei ole `kelikamerat.info` URL');
-    }
-
-    const sentMsg = await reply(msg, '_Tarkistetaan..._');
-    const camera = await getTrafficCamera(cameraUrl);
-
-    if (!camera.name) {
-      editMessageText(sentMsg, '❌ Ei löytynyt kelikameraa');
-      return;
-    }
-
-    chat.settings.traffic.cameras = [
-      ...cameras,
-      {
-        url: cameraUrl,
-        name: camera.name,
-      },
-    ];
-    await chat.save();
-
-    editMessageText(sentMsg, `✅ Lisättiin uusi kamera | \`${camera.name}\``);
+  if (args.length !== 2) {
+    // TODO: Show help
     return;
-  });
+  }
 
-  bot.onText(/^\/traffic (remove|delete)/, async msg => {
-    const chat = await getChat(msg);
-    const { cameras } = chat.settings.traffic;
-    const args = msg.text!.split(' ').splice(1);
+  const cameraUrl = args[1];
 
-    if (args.length < 2) {
-      // TODO: Show help
-      return;
-    }
+  if (!validTrafficCameraUrl(cameraUrl)) {
+    return reply(msg, '❌ Ei ole `kelikamerat.info` URL');
+  }
 
-    const cameraName = args
-      .splice(1)
-      .join('')
-      .toLowerCase();
+  const sentMsg = await reply(msg, '_Tarkistetaan..._');
+  const camera = await getTrafficCamera(cameraUrl);
 
-    let cameraFound = false;
-    chat.settings.traffic.cameras = cameras.filter(camera => {
-      const match = camera.name.toLowerCase() === cameraName;
+  if (!camera.name) {
+    editText(sentMsg, '❌ Ei löytynyt kelikameraa');
+    return;
+  }
 
-      if (match) {
-        cameraFound = true;
-      }
+  chat.settings.traffic.cameras = [
+    ...cameras,
+    {
+      url: cameraUrl,
+      name: camera.name,
+    },
+  ];
+  await chat.save();
 
-      return !match;
-    });
+  editText(sentMsg, `✅ Lisättiin uusi kamera | \`${camera.name}\``);
+  return;
+}
 
-    if (cameraFound) {
+async function removeCamera(msg: TelegramBot.Message) {
+  if (!msg.from) {
+    return;
+  }
+
+  const chat = await getChat(msg);
+  const { cameras } = chat.settings.traffic;
+
+  buttonMenu(msg, {
+    title: `🗑 Minkä haluat poistaa ${getFullName(msg)}?`,
+    items: cameras.map(camera => ({
+      text: `📷 ${camera.name}`,
+      value: camera.name,
+    })),
+    timeout: 30000,
+    onSelect: async (msg, value) => {
+      chat.settings.traffic.cameras = cameras.filter(
+        camera => camera.name !== value
+      );
       await chat.save();
-      reply(msg, '🗑 Kamera poistettu');
-    } else {
-      reply(msg, '👎 Ei tuon nimistä kameraa');
-    }
+      editText(msg, `✅ *${value}* poistettu`);
+    },
   });
+}
 
-  bot.onText(/^\/traffic (list|cameras?)/, async msg => {
-    const chat = await getChat(msg);
+async function listCameras(msg: TelegramBot.Message) {
+  const chat = await getChat(msg);
 
-    reply(
-      msg,
-      `🌦 *Chatin kelikamerat* 📷\n` +
-        chat.settings.traffic.cameras
-          .map(camera => `● ${camera.name}`)
-          .join('\n')
-    );
-  });
+  reply(
+    msg,
+    `🌦 *Chatin kelikamerat* 📷\n` +
+      chat.settings.traffic.cameras.map(camera => `● ${camera.name}`).join('\n')
+  );
+}
+
+export function load() {
+  bot.onText(/^\/traffic$/, msg => sendTraffic(msg));
+  bot.onText(/^\/traffic add/, addCamera);
+  bot.onText(/^\/traffic (remove|delete)/, removeCamera);
+  bot.onText(/^\/traffic (list|cameras?)/, listCameras);
 }

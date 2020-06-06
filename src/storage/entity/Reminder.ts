@@ -35,4 +35,7 @@ export class Reminder extends BaseEntity {
 
   @Column({ default: false })
   notified: boolean;
+
+  @Column()
+  reminderSetMessageId: number;
 }
