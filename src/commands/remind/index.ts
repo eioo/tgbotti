@@ -107,6 +107,7 @@ async function load() {
           },
         ],
         allowMultiple: true,
+        userSpecific: true,
         onSelect: async msg => {
           deleteMessage(msg);
           await reminder.remove();

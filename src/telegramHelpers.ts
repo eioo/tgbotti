@@ -53,14 +53,26 @@ export function editText(
   });
 }
 
-export function getFullName(msg: TelegramBot.Message) {
-  return [msg.from?.first_name, msg.from?.last_name].filter(x => x).join(' ');
+export function getFullName(
+  msgOrUser?: TelegramBot.Message | TelegramBot.User
+) {
+  if (!msgOrUser) {
+    return '';
+  }
+
+  if ('first_name' in msgOrUser) {
+    const user = msgOrUser;
+    return [user.first_name, user.last_name].filter(x => x).join(' ');
+  } else {
+    return [msgOrUser.from?.first_name, msgOrUser.from?.last_name]
+      .filter(x => x)
+      .join(' ');
+  }
 }
 
 interface ButtonMenu {
-  fromId: number;
-  chatId: number;
-  sentMessage: TelegramBot.Message;
+  triggerMessage: TelegramBot.Message;
+  menuMessage: TelegramBot.Message;
 }
 
 interface ButtonMenuProps {
@@ -71,25 +83,34 @@ interface ButtonMenuProps {
   }>;
   timeout?: number;
   allowMultiple?: boolean;
+  userSpecific?: boolean;
   onSelect?: (message: TelegramBot.Message, value: string) => void;
 }
 
-let currentMenus: Array<ButtonMenu> = [];
+const currentMenus: Record<string, ButtonMenu> = {};
 
 function removeExistingMenu(message: TelegramBot.Message) {
-  currentMenus = currentMenus.filter(menu => {
-    if (menu.chatId === message.chat.id && menu.fromId === message.from?.id) {
-      deleteMessage(menu.sentMessage);
-      return false;
+  for (const [menuId, { menuMessage }] of Object.entries(currentMenus)) {
+    if (
+      menuMessage.chat.id === message.chat.id &&
+      menuMessage.from?.id === message.from?.id
+    ) {
+      deleteMessage(menuMessage);
+      delete currentMenus[menuId];
     }
-
-    return true;
-  });
+  }
 }
 
 export async function buttonMenu(
   msg: TelegramBot.Message,
-  { title, items, onSelect, timeout, allowMultiple }: ButtonMenuProps
+  {
+    title,
+    items,
+    onSelect,
+    timeout,
+    allowMultiple,
+    userSpecific,
+  }: ButtonMenuProps
 ) {
   // Remove previous menu if there is any
   !allowMultiple && removeExistingMenu(msg);
@@ -110,18 +131,14 @@ export async function buttonMenu(
     },
   });
 
-  const newMenu: ButtonMenu = {
-    fromId: msg.from!.id,
-    chatId: msg.chat.id,
-    sentMessage,
+  currentMenus[menuId] = {
+    triggerMessage: msg,
+    menuMessage: sentMessage,
   };
 
   let timeoutFunc: NodeJS.Timeout;
 
-  currentMenus.push(newMenu);
-
   if (timeout) {
-    console.log('settimeout');
     timeoutFunc = setTimeout(() => {
       removeExistingMenu(msg);
     }, timeout);
@@ -129,20 +146,33 @@ export async function buttonMenu(
 
   const onCallbackQuery = ({
     data,
-    message: sentMessage,
+    message: menuMessage,
+    from,
   }: TelegramBot.CallbackQuery) => {
     if (!data) {
       return;
     }
 
-    const [queryMenuId, ...rest] = data.split(' ');
+    const [dataMenuId, ...rest] = data.split(' ');
     const value = rest.join(' ');
 
-    if (!sentMessage || menuId !== queryMenuId) {
+    if (!menuMessage || menuId !== dataMenuId) {
       return;
     }
 
-    onSelect && onSelect(sentMessage, value);
+    const menu = currentMenus[menuId];
+    const ownerOfTheMenu = menu.triggerMessage.from?.id === from.id;
+
+    if (userSpecific && !ownerOfTheMenu) {
+      return reply(
+        menuMessage.chat.id,
+        `😡 Stop pressing ${getFullName(
+          menu.triggerMessage.from
+        )}'s menu ${getFullName(from)}`
+      );
+    }
+
+    onSelect && onSelect(menuMessage, value);
     bot.removeListener('callback_query', onCallbackQuery);
 
     if (timeoutFunc) {
