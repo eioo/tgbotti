@@ -8,14 +8,25 @@ import sharp = require('sharp');
 
 const ALLOWED_MIMETYPES = ['image/png', 'image/jpeg'];
 
+const activeUsers = new Set<number>();
+
 function load() {
   bot.onText(/^\/sticker$/i, msg => {
+    if (!msg.from) {
+      return;
+    }
+
     reply(msg, 'Send image without compression');
 
     const documentListener = async ({
       document,
       chat,
+      from,
     }: TelegramBot.Message) => {
+      if (!from || activeUsers.has(from.id)) return;
+
+      activeUsers.add(from.id);
+
       const fileId = document?.file_id;
       const fileName = document?.file_name;
       const mimeType = document?.mime_type;
@@ -55,7 +66,7 @@ function load() {
       fs.unlinkSync(outputPath);
     };
 
-    bot.on('document', documentListener);
+    bot.addListener('document', documentListener);
   });
 }
 const description = 'Add sticker';
