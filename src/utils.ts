@@ -15,3 +15,16 @@ export function createUUID() {
 
   return s.join('');
 }
+
+export function throttle(callback: Function, limit: number) {
+  let wait = false;
+  return () => {
+    if (!wait) {
+      callback();
+      wait = true;
+      setTimeout(() => {
+        wait = false;
+      }, limit);
+    }
+  };
+}

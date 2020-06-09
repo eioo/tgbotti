@@ -1,7 +1,7 @@
 import TelegramBot = require('node-telegram-bot-api');
 
 import { bot } from '../../bot';
-import { reply } from '../../telegramHelpers';
+import { deleteMessage, reply } from '../../telegramHelpers';
 
 const description = 'Sends info about sent message';
 const state = new Map<number, TelegramBot.Message>();
@@ -26,7 +26,7 @@ function load() {
     }
 
     state.delete(chat.id);
-    await bot.deleteMessage(chat.id, waitMessage.message_id.toString());
+    await deleteMessage(waitMessage);
 
     const data: Record<string, number | string> = {
       'Chat ID': chat.id,

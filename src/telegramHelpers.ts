@@ -1,5 +1,6 @@
 import * as TelegramBot from 'node-telegram-bot-api';
 import { bot } from './bot';
+import { logger } from './logger';
 import { Chat } from './storage/entity/Chat';
 import { createUUID } from './utils';
 
@@ -37,7 +38,11 @@ export function deleteMessageByIds(
 }
 
 export function deleteMessage(msg: TelegramBot.Message) {
-  return bot.deleteMessage(msg.chat.id, msg.message_id.toString());
+  try {
+    return bot.deleteMessage(msg.chat.id, msg.message_id.toString());
+  } catch (e) {
+    logger.warn(e.message);
+  }
 }
 
 export function editText(
@@ -144,7 +149,7 @@ export async function buttonMenu(
     }, timeout);
   }
 
-  const onCallbackQuery = ({
+  const onCallbackQuery = async ({
     data,
     message: menuMessage,
     from,
@@ -164,12 +169,16 @@ export async function buttonMenu(
     const ownerOfTheMenu = menu.triggerMessage.from?.id === from.id;
 
     if (userSpecific && !ownerOfTheMenu) {
-      return reply(
+      const stopMessage = await reply(
         menuMessage.chat.id,
         `😡 Stop pressing ${getFullName(
           menu.triggerMessage.from
         )}'s menu ${getFullName(from)}`
       );
+
+      return setTimeout(() => {
+        deleteMessage(stopMessage);
+      }, 10000);
     }
 
     onSelect && onSelect(menuMessage, value);
