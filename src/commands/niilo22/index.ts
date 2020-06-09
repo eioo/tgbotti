@@ -9,8 +9,12 @@ function getRandomSound() {
   return fs.createReadStream(randomFile);
 }
 
-export function load() {
+function load() {
   bot.onText(/[a-zA-ZäöåÄÖÅ]+22/i, msg => {
     bot.sendVoice(msg.chat.id, getRandomSound());
   });
 }
+
+const hidden = true;
+
+export { load, hidden };
