@@ -1,23 +1,32 @@
-import Telegraf from 'telegraf';
-
-import { loadCommands } from './commands/loader';
-import { config } from './config';
+import * as TelegramBot from 'node-telegram-bot-api';
+import { loadAllCommands } from './commands/commandLoader';
+import { env } from './env';
 import { logger } from './logger';
-import * as database from './storage/database';
-import { setupUpdateHandlers } from './updates';
+import { connectToDatabase } from './storage';
+import { getFullName } from './telegramHelpers';
 
-export const bot = new Telegraf(config.botToken);
+export const bot = new TelegramBot(env.BOT_TOKEN);
 
-async function launchBot() {
-  await database.testConnection();
-  logger.log('Database connected');
+function messageHandler() {
+  bot.on('message', msg => {
+    const timeSince = Date.now() / 1000 - msg.date; // Seconds
 
-  const { loadCount } = await loadCommands();
-  logger.log(`Loaded ${loadCount} commands`);
-
-  setupUpdateHandlers();
-  await bot.launch();
-  logger.log('Bot launched');
+    if (timeSince < 60) {
+      logger.log(
+        `Message from ${getFullName(msg)} (ID: ${msg.from?.id || '-'})`
+      );
+    }
+  });
 }
 
-launchBot();
+export async function launch() {
+  await connectToDatabase();
+  logger.log('Database connected');
+
+  const { loadCount } = await loadAllCommands();
+  logger.log(`Loaded ${loadCount} commands`);
+
+  messageHandler();
+  bot.startPolling();
+  logger.log('Bot launched');
+}
