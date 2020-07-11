@@ -34,8 +34,8 @@ async function load() {
     }
 
     const args = msg.text.split(' ').splice(1);
-    console.log(msg.text, args);
     const chat = await getChat(msg);
+
     const { mornings: settings } = chat.settings;
 
     if (!args.length) {
@@ -43,18 +43,16 @@ async function load() {
     }
 
     const { notificationRule } = settings;
-    const firstArg = args[0].toLowerCase();
 
-    if (firstArg === 'enable') {
-      addNotification(chat, 'mornings', notificationRule, () => {
-        sendMornings(chat);
-      });
-      return reply(chat, `✅ *Notifications enabled*`);
-    }
-
-    if (firstArg === 'disable') {
-      removeNotification(msg, 'mornings');
-      return reply(chat, `❌ *Notifications disabled*`);
+    switch (args[0].toLowerCase()) {
+      case 'enable':
+        addNotification(chat, 'mornings', notificationRule, () => {
+          sendMornings(chat);
+        });
+        return reply(chat, `✅ *Notifications enabled*`);
+      case 'disable':
+        removeNotification(msg, 'mornings');
+        return reply(chat, `❌ *Notifications disabled*`);
     }
   });
 
@@ -72,4 +70,6 @@ async function load() {
   }
 }
 
-export { load };
+const description = 'Show morning message';
+
+export { load, description };
