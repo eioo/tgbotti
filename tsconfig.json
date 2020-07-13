@@ -3,13 +3,13 @@
     "module": "commonjs",
     "target": "es5",
     "lib": ["es2017"],
-    "sourceMap": true,
+    "sourceMap": false,
     "moduleResolution": "node",
-    "strictNullChecks": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "outDir": "build"
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "outDir": "build",
+    "strictPropertyInitialization": false
   },
-  "exclude": ["node_modules"]
+  "include": ["src"]
 }

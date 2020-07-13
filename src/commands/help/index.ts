@@ -1,17 +1,23 @@
 import { bot } from '../../bot';
-import { commands } from '../loader';
+import { reply } from '../../telegramHelpers';
+import { commands } from '../commandLoader';
+
+const description = 'Show help';
 
 function load() {
-  bot.help(ctx => {
-    const responseLines = ['*Bot Help*'];
+  bot.onText(/^\/help$/i, msg => {
+    const responseText =
+      '*Bot help*\n' +
+      Object.entries(commands)
+        .filter(([, { hidden }]) => !hidden)
+        .map(
+          ([name, { description }]) =>
+            `\`/${name}\` - ${description || '_No description_'}`
+        )
+        .join('\n');
 
-    for (const [name, { description }] of Object.entries(commands)) {
-      responseLines.push(`\`/${name}\` - ${description || '_No description_'}`);
-    }
-
-    const responseText = responseLines.join('\n');
-    ctx.replyWithMarkdown(responseText);
+    reply(msg, responseText);
   });
 }
 
-export { load };
+export { load, description };
